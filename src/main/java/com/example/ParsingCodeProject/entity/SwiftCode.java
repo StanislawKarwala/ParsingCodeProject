@@ -40,7 +40,7 @@ public class SwiftCode {
     @ToString.Exclude
     private SwiftCode headquarter;
 
-    @OneToMany(mappedBy = "headquarter", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "headquarter", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     @JsonIgnore
     @ToString.Exclude
     private List<SwiftCode> branches;

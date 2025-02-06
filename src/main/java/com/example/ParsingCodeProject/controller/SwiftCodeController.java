@@ -23,18 +23,32 @@ public class SwiftCodeController {
         this.swiftCodeService = swiftCodeService;
     }
 
-    @DeleteMapping("/{swift-code}")
-    public ResponseEntity<Map<String, String>> deleteBySwiftCode(@PathVariable("swift-code") String code){
-        boolean isDeleted = swiftCodeService.deleteBySwiftCode(code);
-
-        Map<String, String> response = new HashMap<>();
-        if(isDeleted){
-            response.put("message", "SWIFT code data succesfully deleted");
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("message", "SWIFT code data not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    @GetMapping("/{swift-code}")
+    public ResponseEntity<?> getSwiftCodeDetails(@PathVariable("swift-code") String swiftCode) {
+        if (!swiftCode.matches("[A-Z0-9]{11}")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters."));
         }
+
+        Optional<SwiftCode> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
+        if (swiftCodeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "SWIFT code not found in database."));
+        }
+
+        SwiftCode code = swiftCodeOpt.get();
+        if (code.getHeadquarterFlag()) {
+            try {
+                List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode)
+                        .stream()
+                        .map(BranchesInfoHQResponse::new)
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(new HeadquarterDTO(
+                        code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
+                ));
+            } catch (NoSuchElementException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
+        }
+        return ResponseEntity.ok(new BranchesDTO(code));
     }
 
     @GetMapping("/country/{countryISO2code}")
@@ -69,33 +83,17 @@ public class SwiftCodeController {
         }
     }
 
-    @GetMapping("/{swiftCode}")
-    public ResponseEntity<?> getSwiftCodeDetails(@PathVariable String swiftCode) {
-        if (!swiftCode.matches("[A-Z0-9]{11}")) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters."));
-        }
+    @DeleteMapping("/{swift-code}")
+    public ResponseEntity<Map<String, String>> deleteBySwiftCode(@PathVariable("swift-code") String code){
+        boolean isDeleted = swiftCodeService.deleteBySwiftCode(code);
 
-        Optional<SwiftCode> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
-        if (swiftCodeOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "SWIFT code not found in database."));
+        Map<String, String> response = new HashMap<>();
+        if(isDeleted){
+            response.put("message", "SWIFT code data succesfully deleted");
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("message", "SWIFT code data not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-
-        SwiftCode code = swiftCodeOpt.get();
-        if (code.getHeadquarterFlag()) {
-            try {
-                List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode)
-                        .stream()
-                        .map(BranchesInfoHQResponse::new)
-                        .collect(Collectors.toList());
-                return ResponseEntity.ok(new HeadquarterDTO(
-                        code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
-                ));
-            } catch (NoSuchElementException e) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-            }
-        }
-
-        return ResponseEntity.ok(new BranchesDTO(code));
     }
-
 }

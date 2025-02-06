@@ -4,6 +4,7 @@ import com.example.ParsingCodeProject.dto.CountryDTO;
 import com.example.ParsingCodeProject.dto.CountryResponse;
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +22,14 @@ public class SwiftCodeService {
         swiftCodeRepository.save(code);
     }
 
-    public boolean deleteBySwiftCode(String code){
-        Optional<SwiftCode> swiftCodeOptional = swiftCodeRepository.findByCode(code);
+    public Optional<SwiftCode> getSwiftCodeByCode(String swiftCode) {
+        return swiftCodeRepository.findById(swiftCode);
+    }
 
-        if(swiftCodeOptional.isPresent()){
-            swiftCodeRepository.delete(swiftCodeOptional.get());
-            return true;
-        }
-        return false;
+    public List<SwiftCode> getBranchesByHeadquarter(String headquarterCode) {
+        return swiftCodeRepository.findByCodeStartingWith(headquarterCode.substring(0, 8)).stream()
+                .filter(branch -> !branch.getCode().endsWith("XXX"))
+                .toList();
     }
 
     public Optional<CountryResponse> getSwiftCodesByCountry(String countryISO2) {
@@ -61,6 +62,7 @@ public class SwiftCodeService {
         }
 
         String uppercasedCode = swiftCode.getCode().toUpperCase();
+        String uppercasedCountry = swiftCode.getCountryName().toUpperCase();
         if (uppercasedCode.length() != 11) {
             throw new IllegalArgumentException("SWIFT code must be exactly 11 characters long.");
         }
@@ -72,18 +74,23 @@ public class SwiftCodeService {
             throw new IllegalArgumentException("SWIFT code like this one already exists in the database.");
         }
 
+        swiftCode.setCountryName(uppercasedCountry);
         swiftCode.setCode(uppercasedCode);
         swiftCode.setHeadquarterFlag(isHeadquarter);
         swiftCodeRepository.save(swiftCode);
     }
 
-    public Optional<SwiftCode> getSwiftCodeByCode(String swiftCode) {
-        return swiftCodeRepository.findById(swiftCode);
-    }
+    @Transactional
+    public boolean deleteBySwiftCode(String code) {
+        return swiftCodeRepository.findByCode(code).map(swiftCode -> {
+            Optional.ofNullable(swiftCode.getBranches())
+                    .ifPresent(branches -> branches.forEach(branch -> {
+                        branch.setHeadquarter(null);
+                        swiftCodeRepository.save(branch);
+                    }));
 
-    public List<SwiftCode> getBranchesByHeadquarter(String headquarterCode) {
-        return swiftCodeRepository.findByCodeStartingWith(headquarterCode.substring(0, 8)).stream()
-                .filter(branch -> !branch.getCode().endsWith("XXX"))
-                .toList();
+            swiftCodeRepository.delete(swiftCode);
+            return true;
+        }).orElse(false);
     }
 }

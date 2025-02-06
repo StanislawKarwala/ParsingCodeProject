@@ -63,6 +63,7 @@ public class SwiftCodeParser {
                     continue;
                 }
 
+                // Can add getCell by Name of the cell
                 String countryISO2 = row.getCell(0).getStringCellValue().toUpperCase();
                 String bankName = row.getCell(3).getStringCellValue();
                 String address = row.getCell(4).getStringCellValue();
@@ -97,7 +98,6 @@ public class SwiftCodeParser {
         } catch (IOException e) {
             System.err.println("Błąd podczas odczytu pliku: " + e.getMessage());
         }
-
         return swiftCodes;
     }
 
@@ -106,8 +106,6 @@ public class SwiftCodeParser {
         List<SwiftCode> mutableSwiftCodes = new ArrayList<>(swiftCodes);
 
         mutableSwiftCodes.sort((a, b) -> Boolean.compare(b.getHeadquarterFlag(), a.getHeadquarterFlag()));
-
-        System.out.println("Rozpoczynam zapisywanie do bazy danych...");
 
         for (SwiftCode swift : mutableSwiftCodes) {
             if (swift.getHeadquarterFlag()) {
