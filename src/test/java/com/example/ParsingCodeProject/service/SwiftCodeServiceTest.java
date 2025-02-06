@@ -142,6 +142,18 @@ class SwiftCodeServiceTest {
     }
 
     @Test
+    void validateAndSaveSwiftCode_UppercaseConversion() {
+        SwiftCode swiftCode = new SwiftCode("brexplpwxxx", "Warsaw", "BRE Bank", "PL", "Poland");
+
+        when(swiftCodeRepository.findById("BREXPLPWXXX")).thenReturn(Optional.empty());
+
+        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
+
+        assertEquals("BREXPLPWXXX", swiftCode.getCode());
+        verify(swiftCodeRepository, times(1)).save(swiftCode);
+    }
+
+    @Test
     void getSwiftCodeByCode_Success() {
         String swiftCode = "BREXPLPWXXX";
         SwiftCode swiftCodeEntity = new SwiftCode(swiftCode, "Warsaw", "BRE Bank", "PL", "Poland");

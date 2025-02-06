@@ -60,16 +60,19 @@ public class SwiftCodeService {
             throw new IllegalArgumentException("Invalid country ISO2 code format. It must be exactly 2 uppercase letters.");
         }
 
-        if (swiftCode.getCode().length() != 11) {
+        String uppercasedCode = swiftCode.getCode().toUpperCase();
+        if (uppercasedCode.length() != 11) {
             throw new IllegalArgumentException("SWIFT code must be exactly 11 characters long.");
         }
-        boolean isHeadquarter = swiftCode.getCode().endsWith("XXX");
 
-        Optional<SwiftCode> existingSwiftCode = swiftCodeRepository.findById(swiftCode.getCode());
+        boolean isHeadquarter = uppercasedCode.endsWith("XXX");
+
+        Optional<SwiftCode> existingSwiftCode = swiftCodeRepository.findById(uppercasedCode);
         if (existingSwiftCode.isPresent()) {
             throw new IllegalArgumentException("SWIFT code with this code already exists in the database.");
         }
 
+        swiftCode.setCode(uppercasedCode);
         swiftCode.setHeadquarterFlag(isHeadquarter);
         swiftCodeRepository.save(swiftCode);
     }
