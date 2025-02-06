@@ -26,7 +26,7 @@ public class SwiftCode {
     @Column(name = "country_name")
     private String countryName;
 
-    @Transient
+    @Column(name = "headquarter_flag", nullable = false)
     private boolean headquarterFlag;
 
     @ManyToOne

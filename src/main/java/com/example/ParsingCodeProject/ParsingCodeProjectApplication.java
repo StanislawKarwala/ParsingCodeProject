@@ -31,5 +31,9 @@ public class ParsingCodeProjectApplication implements CommandLineRunner {
 				System.out.println("SwiftCode: " + swift.getCode() + " ||| Nazwa banku: " + swift.getBankName()
 						+ " ||| Główny oddział?: " + swift.getHeadquarterFlag() + " ||| Kraj: " + swift.getCountryName())
 		);
+
+		swiftCodeParser.storeSwiftCodes(swiftCodes);
 	}
+
+
 }

@@ -1,6 +1,7 @@
 package com.example.ParsingCodeProject.parser;
 
 import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.service.SwiftCodeService;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,13 @@ import java.util.Map;
 
 @Component
 public class SwiftCodeParser {
+
+    private final SwiftCodeService swiftCodeService;
+
+    public SwiftCodeParser(SwiftCodeService swiftCodeService){
+        this.swiftCodeService = swiftCodeService;
+    }
+
     public List<SwiftCode> parseSwiftCodes(String filePath) {
         List<SwiftCode> swiftCodes = new ArrayList<>();
         Map<String, SwiftCode> headquartersMap = new HashMap<>();
@@ -59,12 +67,14 @@ public class SwiftCodeParser {
                 String bankName = row.getCell(3).getStringCellValue();
                 String address = row.getCell(4).getStringCellValue();
                 String countryName = row.getCell(6).getStringCellValue().toUpperCase();
+                boolean isHeadquarter = code.endsWith("XXX");
 
                 System.out.println("Tworzenie obiektu SwiftCode dla kodu: " + code);
                 SwiftCode swift = new SwiftCode(code, address, bankName, countryISO2, countryName);
+                swift.setHeadquarterFlag(isHeadquarter);
                 swiftCodes.add(swift);
 
-                if (code.endsWith("XXX")) {
+                if (isHeadquarter) {
                     headquartersMap.put(code.substring(0, 8), swift);
                     System.out.println("Dodano centralę banku: " + code);
                 }
@@ -89,6 +99,36 @@ public class SwiftCodeParser {
         }
 
         return swiftCodes;
+    }
+
+    public void storeSwiftCodes(List<SwiftCode> swiftCodes) {
+        Map<String, SwiftCode> headquartersMap = new HashMap<>();
+        List<SwiftCode> mutableSwiftCodes = new ArrayList<>(swiftCodes);
+
+        mutableSwiftCodes.sort((a, b) -> Boolean.compare(b.getHeadquarterFlag(), a.getHeadquarterFlag()));
+
+        System.out.println("Rozpoczynam zapisywanie do bazy danych...");
+
+        for (SwiftCode swift : mutableSwiftCodes) {
+            if (swift.getHeadquarterFlag()) {
+                swiftCodeService.saveSwiftCodesData(swift);
+                headquartersMap.put(swift.getCode().substring(0, 8), swift);
+                System.out.println("Zapisano centralę: " + swift.getCode());
+            }
+        }
+
+        for (SwiftCode swift : mutableSwiftCodes) {
+            if (!swift.getHeadquarterFlag()) {
+                SwiftCode headquarter = headquartersMap.get(swift.getCode().substring(0, 8));
+                if (headquarter != null) {
+                    swift.setHeadquarter(headquarter);
+                }
+                swiftCodeService.saveSwiftCodesData(swift);
+                System.out.println("Zapisano oddział: " + swift.getCode());
+            }
+        }
+
+        System.out.println("Zakończono zapisywanie do bazy danych.");
     }
 
 }
