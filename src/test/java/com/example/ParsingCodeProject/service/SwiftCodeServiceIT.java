@@ -1,6 +1,6 @@
 package com.example.ParsingCodeProject.service;
 
-import com.example.ParsingCodeProject.dto.SwiftCodesCountryResponse;
+import com.example.ParsingCodeProject.dto.CountryResponse;
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class SwiftCodeServiceIT {
 
     @Test
     void getSwiftCodesByCountry_Success() {
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("PL");
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry("PL");
 
         assertTrue(response.isPresent());
         assertEquals("PL", response.get().getCountryISO2());
@@ -34,13 +34,13 @@ class SwiftCodeServiceIT {
 
     @Test
     void getSwiftCodesByCountry_NotFound() {
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("XX");
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry("XX");
         assertTrue(response.isEmpty());
     }
 
     @Test
     void getSwiftCodesByCountry_InvalidCountryCode() {
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("123");
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry("123");
         assertTrue(response.isEmpty());
     }
 

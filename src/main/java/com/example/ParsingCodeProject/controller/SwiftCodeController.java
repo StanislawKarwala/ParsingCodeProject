@@ -1,6 +1,9 @@
 package com.example.ParsingCodeProject.controller;
 
-import com.example.ParsingCodeProject.dto.SwiftCodesCountryResponse;
+import com.example.ParsingCodeProject.dto.BranchesDTO;
+import com.example.ParsingCodeProject.dto.BranchesInfoHQResponse;
+import com.example.ParsingCodeProject.dto.CountryResponse;
+import com.example.ParsingCodeProject.dto.HeadquarterDTO;
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.service.SwiftCodeService;
 import org.springframework.http.HttpStatus;
@@ -8,8 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/swift-codes")
@@ -42,7 +47,7 @@ public class SwiftCodeController {
                     .body(Map.of("error", "Invalid country ISO2 code format. It must be exactly 2 uppercase letters."));
         }
 
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry(countryISO2code);
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry(countryISO2code);
 
         if (response.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -65,5 +70,24 @@ public class SwiftCodeController {
             errorResponse.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
         }
+    }
+
+    @GetMapping("/{swiftCode}")
+    public ResponseEntity<?> getSwiftCodeDetails(@PathVariable String swiftCode) {
+        Optional<SwiftCode> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
+        if (swiftCodeOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        SwiftCode code = swiftCodeOpt.get();
+        if (code.getHeadquarterFlag()) {
+            List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode)
+                    .stream()
+                    .map(BranchesInfoHQResponse::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(new HeadquarterDTO(
+                    code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
+            ));
+        }
+        return ResponseEntity.ok(new BranchesDTO(code));
     }
 }

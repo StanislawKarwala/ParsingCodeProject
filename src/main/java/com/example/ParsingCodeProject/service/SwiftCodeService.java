@@ -1,7 +1,7 @@
 package com.example.ParsingCodeProject.service;
 
 import com.example.ParsingCodeProject.dto.CountryDTO;
-import com.example.ParsingCodeProject.dto.SwiftCodesCountryResponse;
+import com.example.ParsingCodeProject.dto.CountryResponse;
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class SwiftCodeService {
         return false;
     }
 
-    public Optional<SwiftCodesCountryResponse> getSwiftCodesByCountry(String countryISO2) {
+    public Optional<CountryResponse> getSwiftCodesByCountry(String countryISO2) {
         System.out.println("CountryISO2 = " + countryISO2);
         List<SwiftCode> swiftCodes = swiftCodeRepository.findByCountryISO2(countryISO2);
         System.out.println("Znalezione kody: " + swiftCodes);
@@ -40,7 +40,7 @@ public class SwiftCodeService {
             return Optional.empty();
         }
 
-        SwiftCodesCountryResponse response = new SwiftCodesCountryResponse(
+        CountryResponse response = new CountryResponse(
                 countryISO2,
                 swiftCodes.getFirst().getCountryName(),
                 swiftCodes.stream().map(CountryDTO::new).toList()
@@ -72,5 +72,15 @@ public class SwiftCodeService {
 
         swiftCode.setHeadquarterFlag(isHeadquarter);
         swiftCodeRepository.save(swiftCode);
+    }
+
+    public Optional<SwiftCode> getSwiftCodeByCode(String swiftCode) {
+        return swiftCodeRepository.findById(swiftCode);
+    }
+
+    public List<SwiftCode> getBranchesByHeadquarter(String headquarterCode) {
+        return swiftCodeRepository.findByCodeStartingWith(headquarterCode.substring(0, 8)).stream()
+                .filter(branch -> !branch.getCode().endsWith("XXX"))
+                .toList();
     }
 }

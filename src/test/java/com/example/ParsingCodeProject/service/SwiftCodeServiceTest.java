@@ -3,7 +3,7 @@ package com.example.ParsingCodeProject.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.example.ParsingCodeProject.dto.SwiftCodesCountryResponse;
+import com.example.ParsingCodeProject.dto.CountryResponse;
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ class SwiftCodeServiceTest {
                         new SwiftCode("BREXPLPW002", "Krakow", "BRE Bank", "PL", "Poland")
                 ));
 
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("PL");
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry("PL");
 
         assertTrue(response.isPresent());
         assertEquals("PL", response.get().getCountryISO2());
@@ -79,7 +79,7 @@ class SwiftCodeServiceTest {
     void getSwiftCodesByCountry_NotFound() {
         when(swiftCodeRepository.findByCountryISO2("XX")).thenReturn(List.of());
 
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("XX");
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry("XX");
 
         assertTrue(response.isEmpty());
         verify(swiftCodeRepository, times(1)).findByCountryISO2("XX");
@@ -96,7 +96,7 @@ class SwiftCodeServiceTest {
     void getSwiftCodesByCountry_EmptyResult() {
         when(swiftCodeRepository.findByCountryISO2("DE")).thenReturn(List.of());
 
-        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("DE");
+        Optional<CountryResponse> response = swiftCodeService.getSwiftCodesByCountry("DE");
 
         assertFalse(response.isPresent());
         verify(swiftCodeRepository, times(1)).findByCountryISO2("DE");
