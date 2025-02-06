@@ -140,5 +140,44 @@ class SwiftCodeServiceTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
         assertEquals("SWIFT code with this code already exists in the database.", exception.getMessage());
     }
+
+    @Test
+    void getSwiftCodeByCode_Success() {
+        String swiftCode = "BREXPLPWXXX";
+        SwiftCode swiftCodeEntity = new SwiftCode(swiftCode, "Warsaw", "BRE Bank", "PL", "Poland");
+        when(swiftCodeRepository.findById(swiftCode)).thenReturn(Optional.of(swiftCodeEntity));
+
+        Optional<SwiftCode> result = swiftCodeService.getSwiftCodeByCode(swiftCode);
+
+        assertTrue(result.isPresent());
+        assertEquals(swiftCode, result.get().getCode());
+        verify(swiftCodeRepository, times(1)).findById(swiftCode);
+    }
+
+    @Test
+    void getSwiftCodeByCode_NotFound() {
+        String swiftCode = "UNKNOWN";
+        when(swiftCodeRepository.findById(swiftCode)).thenReturn(Optional.empty());
+
+        Optional<SwiftCode> result = swiftCodeService.getSwiftCodeByCode(swiftCode);
+
+        assertTrue(result.isEmpty());
+        verify(swiftCodeRepository, times(1)).findById(swiftCode);
+    }
+
+    @Test
+    void getBranchesByHeadquarter_Success() {
+        String headquarterCode = "BREXPLPW";
+        List<SwiftCode> branches = List.of(
+                new SwiftCode("BREXPLPW001", "City1", "Bank1", "PL", "Poland"),
+                new SwiftCode("BREXPLPW002", "City2", "Bank2", "PL", "Poland")
+        );
+        when(swiftCodeRepository.findByCodeStartingWith(headquarterCode)).thenReturn(branches);
+
+        List<SwiftCode> result = swiftCodeService.getBranchesByHeadquarter(headquarterCode);
+
+        assertEquals(2, result.size());
+        verify(swiftCodeRepository, times(1)).findByCodeStartingWith(headquarterCode);
+    }
 }
 

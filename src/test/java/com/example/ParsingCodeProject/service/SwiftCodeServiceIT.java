@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,5 +90,49 @@ class SwiftCodeServiceIT {
     void validateAndSaveSwiftCode_InvalidSwiftCodeLength() {
         SwiftCode swiftCode = new SwiftCode("BREXPLPWXX", "Warsaw", "BRE Bank", "PL", "Poland");
         assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+    }
+
+    @Test
+    void getSwiftCodeByCode_Success() {
+        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+        swiftCodeRepository.save(swiftCode);
+
+        Optional<SwiftCode> result = swiftCodeService.getSwiftCodeByCode("BREXPLPWXXX");
+
+        assertTrue(result.isPresent());
+        assertEquals("BREXPLPWXXX", result.get().getCode());
+    }
+
+    @Test
+    void getSwiftCodeByCode_NotFound() {
+        Optional<SwiftCode> result = swiftCodeService.getSwiftCodeByCode("UNKNOWN");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getBranchesByHeadquarter_Success() {
+        SwiftCode hq = new SwiftCode("B1234567XXX", "Warsaw", "BRE Bank", "PL", "Poland");
+        SwiftCode branch1 = new SwiftCode("B1234567001", "City1", "BRE Bank", "PL", "Poland");
+        SwiftCode branch2 = new SwiftCode("B1234567002", "City2", "BRE Bank", "PL", "Poland");
+
+        swiftCodeRepository.save(hq);
+        swiftCodeRepository.save(branch1);
+        swiftCodeRepository.save(branch2);
+
+        List<SwiftCode> result = swiftCodeService.getBranchesByHeadquarter("B1234567XXX");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().noneMatch(branch -> branch.getCode().endsWith("XXX")));
+    }
+
+    @Test
+    void getBranchesByHeadquarter_NoBranches() {
+        SwiftCode hq = new SwiftCode("B1233567XXX", "Warsaw", "BRE Bank", "PL", "Poland");
+        swiftCodeRepository.save(hq);
+
+        List<SwiftCode> result = swiftCodeService.getBranchesByHeadquarter("B1233567XXX");
+
+        assertTrue(result.isEmpty());
     }
 }

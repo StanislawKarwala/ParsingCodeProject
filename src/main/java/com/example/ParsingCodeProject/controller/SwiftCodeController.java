@@ -74,6 +74,12 @@ public class SwiftCodeController {
 
     @GetMapping("/{swiftCode}")
     public ResponseEntity<?> getSwiftCodeDetails(@PathVariable String swiftCode) {
+        if (!swiftCode.matches("[A-Z0-9]{11}")) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters.");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
         Optional<SwiftCode> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
         if (swiftCodeOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
