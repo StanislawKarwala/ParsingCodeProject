@@ -10,10 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -75,25 +72,30 @@ public class SwiftCodeController {
     @GetMapping("/{swiftCode}")
     public ResponseEntity<?> getSwiftCodeDetails(@PathVariable String swiftCode) {
         if (!swiftCode.matches("[A-Z0-9]{11}")) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters.");
-            return ResponseEntity.badRequest().body(errorResponse);
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters."));
         }
 
         Optional<SwiftCode> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
         if (swiftCodeOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "SWIFT code not found in database."));
         }
+
         SwiftCode code = swiftCodeOpt.get();
         if (code.getHeadquarterFlag()) {
-            List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode)
-                    .stream()
-                    .map(BranchesInfoHQResponse::new)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(new HeadquarterDTO(
-                    code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
-            ));
+            try {
+                List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode)
+                        .stream()
+                        .map(BranchesInfoHQResponse::new)
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(new HeadquarterDTO(
+                        code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
+                ));
+            } catch (NoSuchElementException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
         }
+
         return ResponseEntity.ok(new BranchesDTO(code));
     }
+
 }
