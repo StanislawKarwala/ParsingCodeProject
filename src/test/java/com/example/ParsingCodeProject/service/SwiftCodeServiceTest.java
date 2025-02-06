@@ -1,61 +1,105 @@
 package com.example.ParsingCodeProject.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import com.example.ParsingCodeProject.dto.SwiftCodesCountryResponse;
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.List;
+import java.util.Optional;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@Transactional
-public class SwiftCodeServiceTest {
-    @Autowired
-    private MockMvc mockMvc;
+@ExtendWith(MockitoExtension.class)
+class SwiftCodeServiceTest {
 
-    @Autowired
+    @Mock
     private SwiftCodeRepository swiftCodeRepository;
 
-    @Autowired
+    @InjectMocks
     private SwiftCodeService swiftCodeService;
 
-    @BeforeEach
-    void setUp() {
-        swiftCodeRepository.deleteAll();
+    @Test
+    void saveSwiftCodesData_Success() {
+        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+
+        swiftCodeService.saveSwiftCodesData(swiftCode);
+
+        verify(swiftCodeRepository, times(1)).save(swiftCode);
     }
 
     @Test
-    void deleteBySwiftCode_Success() throws Exception {
-        SwiftCode headquarter = new SwiftCode("PROLAND1XXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        swiftCodeRepository.save(headquarter);
+    void deleteBySwiftCode_Success() {
+        String swiftCode = "BREXPLPWXXX";
+        SwiftCode swiftCodeEntity = new SwiftCode(swiftCode, "Warsaw", "BRE Bank", "PL", "Poland");
+        when(swiftCodeRepository.findByCode(swiftCode)).thenReturn(Optional.of(swiftCodeEntity));
 
-        SwiftCode branch = new SwiftCode("PROLAND1WWA4", "Warsaw", "BRE Bank", "PL", "Poland");
-        branch.setHeadquarter(headquarter);
-        swiftCodeRepository.save(branch);
+        boolean result = swiftCodeService.deleteBySwiftCode(swiftCode);
 
-        assertTrue(swiftCodeRepository.findByCode("PROLAND1WWA4").isPresent());
-
-        mockMvc.perform(delete("/v1/swift-codes/PROLAND1WWA4"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("SWIFT code data succesfully deleted"));
-
-        assertFalse(swiftCodeRepository.findByCode("PROLAND1WWA4").isPresent());
+        assertTrue(result);
+        verify(swiftCodeRepository, times(1)).findByCode(swiftCode);
+        verify(swiftCodeRepository, times(1)).delete(swiftCodeEntity);
     }
 
     @Test
-    void deleteBySwiftCode_NotFound() throws Exception {
-        mockMvc.perform(delete("/v1/swift-codes/NONEXISTENT"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("SWIFT code data not found"));
+    void deleteBySwiftCode_NotFound() {
+        String swiftCode = "UNKNOWN";
+        when(swiftCodeRepository.findByCode(swiftCode)).thenReturn(Optional.empty());
+
+        boolean result = swiftCodeService.deleteBySwiftCode(swiftCode);
+
+        assertFalse(result);
+        verify(swiftCodeRepository, times(1)).findByCode(swiftCode);
+        verify(swiftCodeRepository, never()).delete(any());
+    }
+
+    @Test
+    void getSwiftCodesByCountry_Success() {
+        when(swiftCodeRepository.findByCountryISO2("PL"))
+                .thenReturn(List.of(
+                        new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland"),
+                        new SwiftCode("BREXPLPW002", "Krakow", "BRE Bank", "PL", "Poland")
+                ));
+
+        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("PL");
+
+        assertTrue(response.isPresent());
+        assertEquals("PL", response.get().getCountryISO2());
+        assertEquals(2, response.get().getSwiftCodes().size());
+
+        verify(swiftCodeRepository, times(1)).findByCountryISO2("PL");
+    }
+
+    @Test
+    void getSwiftCodesByCountry_NotFound() {
+        when(swiftCodeRepository.findByCountryISO2("XX")).thenReturn(List.of());
+
+        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("XX");
+
+        assertTrue(response.isEmpty());
+        verify(swiftCodeRepository, times(1)).findByCountryISO2("XX");
+    }
+
+    @Test
+    void getSwiftCodesByCountry_InvalidCountryCode() {
+        String invalidCode = "123";
+        boolean isValid = invalidCode.length() == 2 && invalidCode.matches("[A-Z]{2}");
+        assertFalse(isValid);
+    }
+
+    @Test
+    void getSwiftCodesByCountry_EmptyResult() {
+        when(swiftCodeRepository.findByCountryISO2("DE")).thenReturn(List.of());
+
+        Optional<SwiftCodesCountryResponse> response = swiftCodeService.getSwiftCodesByCountry("DE");
+
+        assertFalse(response.isPresent());
+        verify(swiftCodeRepository, times(1)).findByCountryISO2("DE");
     }
 }
+

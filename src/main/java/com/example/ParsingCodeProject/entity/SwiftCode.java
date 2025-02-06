@@ -1,8 +1,10 @@
 package com.example.ParsingCodeProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -31,9 +33,13 @@ public class SwiftCode {
 
     @ManyToOne
     @JoinColumn(name = "headquarter_code", referencedColumnName = "code")
+    @JsonIgnore
+    @ToString.Exclude
     private SwiftCode headquarter;
 
     @OneToMany(mappedBy = "headquarter", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ToString.Exclude
     private List<SwiftCode> branches;
 
     public SwiftCode(String code, String address, String bankName, String countryISO2, String countryName){

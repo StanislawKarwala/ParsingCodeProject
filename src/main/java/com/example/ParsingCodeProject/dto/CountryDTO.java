@@ -8,11 +8,11 @@ import lombok.Getter;
 @JsonPropertyOrder({ "address", "bankName", "countryISO2", "isHeadquarter", "swiftCode" })
 @Getter
 public class CountryDTO {
-    private final String address;
-    private final String bankName;
-    private final String countryISO2;
-    private final boolean isHeadquarter;
-    private final String swiftCode;
+    private String address;
+    private String bankName;
+    private String countryISO2;
+    private boolean isHeadquarter;
+    private String swiftCode;
 
     public CountryDTO(SwiftCode swiftCode){
         this.address = swiftCode.getAddress();

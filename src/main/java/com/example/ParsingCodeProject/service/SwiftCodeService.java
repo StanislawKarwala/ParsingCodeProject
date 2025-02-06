@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class SwiftCodeService {
@@ -33,7 +32,9 @@ public class SwiftCodeService {
     }
 
     public Optional<SwiftCodesCountryResponse> getSwiftCodesByCountry(String countryISO2) {
+        System.out.println("CountryISO2 = " + countryISO2);
         List<SwiftCode> swiftCodes = swiftCodeRepository.findByCountryISO2(countryISO2);
+        System.out.println("Znalezione kody: " + swiftCodes);
 
         if (swiftCodes.isEmpty()) {
             return Optional.empty();
@@ -42,9 +43,10 @@ public class SwiftCodeService {
         SwiftCodesCountryResponse response = new SwiftCodesCountryResponse(
                 countryISO2,
                 swiftCodes.getFirst().getCountryName(),
-                swiftCodes.stream().map(CountryDTO::new).collect(Collectors.toList())
+                swiftCodes.stream().map(CountryDTO::new).toList()
         );
 
+        System.out.println("Response: " + response);
         return Optional.of(response);
     }
 }
