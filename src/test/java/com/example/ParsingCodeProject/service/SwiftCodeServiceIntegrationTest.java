@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class SwiftCodeServiceIT {
+class SwiftCodeServiceIntegrationTest {
 
     @Autowired
     private SwiftCodeRepository swiftCodeRepository;

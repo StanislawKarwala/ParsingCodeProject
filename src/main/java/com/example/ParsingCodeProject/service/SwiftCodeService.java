@@ -69,7 +69,7 @@ public class SwiftCodeService {
 
         Optional<SwiftCode> existingSwiftCode = swiftCodeRepository.findById(uppercasedCode);
         if (existingSwiftCode.isPresent()) {
-            throw new IllegalArgumentException("SWIFT code with this code already exists in the database.");
+            throw new IllegalArgumentException("SWIFT code like this one already exists in the database.");
         }
 
         swiftCode.setCode(uppercasedCode);
