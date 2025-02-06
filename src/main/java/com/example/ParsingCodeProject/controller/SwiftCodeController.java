@@ -1,6 +1,7 @@
 package com.example.ParsingCodeProject.controller;
 
 import com.example.ParsingCodeProject.dto.SwiftCodesCountryResponse;
+import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.service.SwiftCodeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,5 +51,19 @@ public class SwiftCodeController {
 
         return response.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Map<String, String>> addSwiftCode(@RequestBody SwiftCode swiftCode) {
+        try {
+            swiftCodeService.validateAndSaveSwiftCode(swiftCode);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "SWIFT code successfully added");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 }

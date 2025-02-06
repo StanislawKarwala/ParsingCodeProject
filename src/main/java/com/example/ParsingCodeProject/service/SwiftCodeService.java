@@ -49,4 +49,28 @@ public class SwiftCodeService {
         System.out.println("Response: " + response);
         return Optional.of(response);
     }
+
+    public void validateAndSaveSwiftCode(SwiftCode swiftCode) {
+        if (swiftCode.getAddress() == null || swiftCode.getBankName() == null || swiftCode.getCountryISO2() == null ||
+                swiftCode.getCountryName() == null || swiftCode.getCode() == null) {
+            throw new IllegalArgumentException("All fields are required");
+        }
+
+        if (!swiftCode.getCountryISO2().matches("[A-Z]{2}")) {
+            throw new IllegalArgumentException("Invalid country ISO2 code format. It must be exactly 2 uppercase letters.");
+        }
+
+        if (swiftCode.getCode().length() != 11) {
+            throw new IllegalArgumentException("SWIFT code must be exactly 11 characters long.");
+        }
+        boolean isHeadquarter = swiftCode.getCode().endsWith("XXX");
+
+        Optional<SwiftCode> existingSwiftCode = swiftCodeRepository.findById(swiftCode.getCode());
+        if (existingSwiftCode.isPresent()) {
+            throw new IllegalArgumentException("SWIFT code with this code already exists in the database.");
+        }
+
+        swiftCode.setHeadquarterFlag(isHeadquarter);
+        swiftCodeRepository.save(swiftCode);
+    }
 }

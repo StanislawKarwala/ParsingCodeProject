@@ -1,6 +1,7 @@
 package com.example.ParsingCodeProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 public class SwiftCode {
 
     @Id
+    @JsonProperty("swiftCode")
     private String code;
 
     private String address;
@@ -29,6 +31,7 @@ public class SwiftCode {
     private String countryName;
 
     @Column(name = "headquarter_flag", nullable = false)
+    @JsonProperty("isHeadquarter")
     private boolean headquarterFlag;
 
     @ManyToOne
