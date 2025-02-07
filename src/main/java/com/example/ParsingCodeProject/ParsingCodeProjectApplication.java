@@ -2,10 +2,13 @@ package com.example.ParsingCodeProject;
 
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.parser.SwiftCodeParser;
+import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @SpringBootApplication
@@ -24,8 +27,8 @@ public class ParsingCodeProjectApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		String fileName = "Interns_2025_SWIFT_CODES.xlsx";
-
-		List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(fileName);
+		Path filePath = Paths.get("src", "main", "resources", fileName);
+		List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath.toString());
 
 		System.out.println("Przetworzone kody SWIFT:");
 		swiftCodes.forEach(swift ->

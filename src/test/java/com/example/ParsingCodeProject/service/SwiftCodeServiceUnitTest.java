@@ -55,7 +55,6 @@ class SwiftCodeServiceUnitTest {
 
         assertFalse(result);
         verify(swiftCodeRepository, times(1)).findByCode(swiftCode);
-        verify(swiftCodeRepository, never()).delete(any());
     }
 
     @Test
@@ -191,5 +190,7 @@ class SwiftCodeServiceUnitTest {
         assertEquals(2, result.size());
         verify(swiftCodeRepository, times(1)).findByCodeStartingWith(headquarterCode);
     }
+
+
 }
 

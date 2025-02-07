@@ -1,20 +1,28 @@
 package com.example.ParsingCodeProject.controller;
 
 import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.parser.SwiftCodeParser;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
 import com.example.ParsingCodeProject.service.SwiftCodeService;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Transactional
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class SwiftCodeControllerIntegrationTest {
@@ -26,11 +34,6 @@ public class SwiftCodeControllerIntegrationTest {
 
     @Autowired
     private SwiftCodeController swiftCodeController;
-
-    @BeforeEach
-    void setUp() {
-        swiftCodeRepository.deleteAll();
-    }
 
     @Test
     void getSwiftCodeDetails_Headquarter() {

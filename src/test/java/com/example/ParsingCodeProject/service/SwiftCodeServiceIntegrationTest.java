@@ -2,20 +2,28 @@ package com.example.ParsingCodeProject.service;
 
 import com.example.ParsingCodeProject.dto.CountryResponse;
 import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.parser.SwiftCodeParser;
 import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Transactional
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SwiftCodeServiceIntegrationTest {
 
     @Autowired

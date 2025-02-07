@@ -112,7 +112,6 @@ public class SwiftCodeParser {
         return swiftCodes;
     }
 
-
     public void storeSwiftCodes(List<SwiftCode> swiftCodes) {
         Map<String, SwiftCode> headquartersMap = new HashMap<>();
         List<SwiftCode> mutableSwiftCodes = new ArrayList<>(swiftCodes);
@@ -140,6 +139,5 @@ public class SwiftCodeParser {
 
         System.out.println("Zakończono zapisywanie do bazy danych.");
     }
-
 }
 
