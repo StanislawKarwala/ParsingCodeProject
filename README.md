@@ -1,45 +1,59 @@
 # ParsingCodeProject
 
 ## Opis projektu
-ParsingCodeProject to aplikacja napisana w Javie, która analizuje kod źródłowy w języku Swift. Projekt wykorzystuje Spring Boot oraz bazę danych PostgreSQL.
+ParsingCodeProject to aplikacja służąca do parsowania, przechowywania i udostępniania danych SWIFT poprzez REST API. Aplikacja wykorzystuje Spring Boot, PostgreSQL oraz Dockera do łatwego wdrażania i zarządzania środowiskiem.
 
 ## Wymagania
-Aby uruchomić projekt, upewnij się, że masz zainstalowane:
-- **Java 23 (Oracle JDK)**
-- **Maven**
-- **PostgreSQL**
+Przed rozpoczęciem pracy z projektem upewnij się, że masz zainstalowane:
+- **Git** – do pobrania repozytorium
+- **Docker** – do konteneryzacji aplikacji
+- **Java 17+** – do uruchomienia aplikacji
+- **Maven** – do zarządzania zależnościami i testowania
 
-## Instalacja i konfiguracja
-### 1. Klonowanie repozytorium
+## Instalacja i uruchomienie
+
+### 1. Sklonowanie repozytorium
+Najpierw sklonuj repozytorium na swój lokalny komputer:
 ```sh
-git clone https://github.com/StanislawKarwala/ParsingCodeProject.git
+git clone https://github.com/StanislawKarwala/ParsingCodeProject
+```
+
+Przejdź do katalogu projektu:
+```sh
 cd ParsingCodeProject
 ```
 
-### 2. Konfiguracja bazy danych
-1. Utwórz bazę danych PostgreSQL.
-2. Zaktualizuj plik `application.properties` lub `application.yml` w katalogu `src/main/resources/`:
-
-```
-spring.datasource.url=jdbc:postgresql://localhost:5432/twoja_baza
-spring.datasource.username=twoj_uzytkownik
-spring.datasource.password=twoje_haslo
-```
-
-### 3. Uruchomienie aplikacji
-#### Z IntelliJ IDEA
-1. Otwórz projekt w IntelliJ IDEA.
-2. Skonfiguruj bazę danych w `application.properties`.
-3. Uruchom aplikację, wybierając klasę główną i klikając **Run**.
-
-#### Z Maven
+### 2. Budowanie obrazu Dockera
 ```sh
-mvn clean install
-mvn spring-boot:run
+docker build -t parsing-code-app .
 ```
 
-## Endpointy API
-Aplikacja działa na porcie **8080**.
+### 3. Uruchomienie kontenera Dockera
+```sh
+docker run -d -p 8080:8080 --name parsing-container parsing-code-app
+```
+
+### 4. Sprawdzenie statusu kontenera
+Możesz sprawdzić listę kontenerów:
+```sh
+docker ps -a
+```
+
+### 5. Wejście do kontenera
+```sh
+docker exec -it parsing-container sh
+```
+
+### 6. Uruchomienie testów
+```sh
+mvn test
+```
+
+## Dodatkowe informacje
+- Aplikacja domyślnie korzysta z bazy danych PostgreSQL.
+- Wszystkie logi aplikacji można znaleźć w konsoli kontenera Dockera.
+- Jeśli chcesz ponownie uruchomić kontener, możesz go usunąć i uruchomić ponownie.
 
 ## Autor
 Stanislaw Karwala
+
