@@ -138,7 +138,7 @@ class SwiftCodeServiceUnitTest {
         when(swiftCodeRepository.findById(swiftCode.getCode())).thenReturn(Optional.of(swiftCode));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-        assertEquals("SWIFT code with this code already exists in the database.", exception.getMessage());
+        assertEquals("SWIFT code like this one already exists in the database.", exception.getMessage());
     }
 
     @Test

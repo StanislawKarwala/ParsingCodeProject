@@ -12,9 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,16 +36,18 @@ class SwiftCodeParserUnitTest {
 
     @Test
     void testFileNotFound() {
-        String filePath = "src/test/resources/not_found.xlsx";
-        List<SwiftCode> result = swiftCodeParser.parseSwiftCodes(filePath);
+        String fileName = "not_found.xlsx";
+        Path filePath = Paths.get("src", "test", "resources", fileName);
+        List<SwiftCode> result = swiftCodeParser.parseSwiftCodes(filePath.toString());
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void testEmptyFile() throws IOException {
-        String filePath = "src/test/resources/empty_swift_codes.xlsx";
-        List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath);
+        String fileName = "empty_swift_codes.xlsx";
+        Path filePath = Paths.get("src", "test", "resources", fileName);
+        List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath.toString());
 
         assertNotNull(swiftCodes);
         assertTrue(swiftCodes.isEmpty());
@@ -53,14 +55,15 @@ class SwiftCodeParserUnitTest {
 
     @Test
     void testInvalidDataFile() throws IOException {
+        String fileName = "invalid_swift_codes.xlsx";
+        Path filePath = Paths.get("src", "test", "resources", fileName);
         System.out.println("Test parsowania uszkodzonego pliku: ");
-        String filePath = "src/test/resources/invalid_swift_codes.xlsx";
 
-        try (FileWriter writer = new FileWriter(filePath)) {
+        try (FileWriter writer = new FileWriter(filePath.toString())) {
             writer.write("INVALID DATA\n");
         }
 
-        List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath);
+        List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath.toString());
 
         assertNotNull(swiftCodes);
         assertTrue(swiftCodes.isEmpty());
@@ -68,9 +71,8 @@ class SwiftCodeParserUnitTest {
 
     @Test
     void testDuplicateSwiftCodes() throws IOException {
-        System.out.println("Test parsowania pliku z duplikatami kodów SWIFT: ");
-
-        String filePath = "src/test/resources/duplicate_swift_codes.xlsx";
+        String fileName = "duplicate_swift_codes.xlsx";
+        Path filePath = Paths.get("src", "test", "resources", fileName);
 
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Swift Codes");
@@ -96,20 +98,25 @@ class SwiftCodeParserUnitTest {
             row2.createCell(4).setCellValue("Address B");
             row2.createCell(6).setCellValue("POLAND");
 
-            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            try (FileOutputStream fileOut = new FileOutputStream(filePath.toFile())) {
                 workbook.write(fileOut);
             }
         }
+        List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath.toString());
 
-        List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath);
+        System.out.println("Liczba unikalnych kodów SWIFT po parsowaniu: " + swiftCodes.size());
 
-        assertNotNull(swiftCodes);
-        assertEquals(1, swiftCodes.size());
+        assertNotNull(swiftCodes, "Lista kodów SWIFT nie powinna być null!");
+        assertEquals(1, swiftCodes.size(), "Lista kodów SWIFT powinna zawierać dokładnie 1 unikalny kod!");
     }
+
+
+
 
     @Test
     void testParseFile_ValidData() throws IOException {
-        String filePath = "src/test/resources/valid_swift_codes.xlsx";
+        String fileName = "valid_swift_codes.xlsx";
+        Path filePath = Paths.get("src", "test", "resources", fileName);
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Swift Codes");
             Row headerRow = sheet.createRow(0);
@@ -126,12 +133,12 @@ class SwiftCodeParserUnitTest {
             row.createCell(4).setCellValue("Address A");
             row.createCell(6).setCellValue("POLAND");
 
-            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            try (FileOutputStream fileOut = new FileOutputStream(filePath.toString())) {
                 workbook.write(fileOut);
             }
         }
 
-        List<SwiftCode> result = swiftCodeParser.parseSwiftCodes(filePath);
+        List<SwiftCode> result = swiftCodeParser.parseSwiftCodes(filePath.toString());
         assertNotNull(result);
         assertFalse(result.isEmpty());
         SwiftCode swiftCode = result.get(0);

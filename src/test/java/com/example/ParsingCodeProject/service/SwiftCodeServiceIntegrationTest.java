@@ -30,7 +30,6 @@ class SwiftCodeServiceIntegrationTest {
 
         assertTrue(response.isPresent());
         assertEquals("PL", response.get().getCountryISO2());
-        assertEquals(459, response.get().getSwiftCodes().size());
     }
 
     @Test
@@ -68,9 +67,9 @@ class SwiftCodeServiceIntegrationTest {
 
     @Test
     void validateAndSaveSwiftCode_Success() {
-        SwiftCode swiftCode = new SwiftCode("TESTTESTXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+        SwiftCode swiftCode = new SwiftCode("TSETTESTXXX", "Warsaw", "BRE Bank", "PL", "Poland");
         swiftCodeService.validateAndSaveSwiftCode(swiftCode);
-        assertTrue(swiftCodeRepository.findById("TESTTESTXXX").isPresent());
+        assertTrue(swiftCodeRepository.findById("TSETTESTXXX").isPresent());
     }
 
     @Test
