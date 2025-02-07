@@ -49,11 +49,6 @@ docker exec -it parsing-container sh
 mvn test
 ```
 
-## Dodatkowe informacje
-- Aplikacja domyślnie korzysta z bazy danych PostgreSQL.
-- Wszystkie logi aplikacji można znaleźć w konsoli kontenera Dockera.
-- Jeśli chcesz ponownie uruchomić kontener, możesz go usunąć i uruchomić ponownie.
-
 ## Autor
 Stanislaw Karwala
 
