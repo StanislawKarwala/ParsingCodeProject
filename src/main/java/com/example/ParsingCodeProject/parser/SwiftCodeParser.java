@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,24 +28,19 @@ public class SwiftCodeParser {
         this.swiftCodeService = swiftCodeService;
     }
 
-    public List<SwiftCode> parseSwiftCodes(String filePath) {
+    public List<SwiftCode> parseSwiftCodes(String fileName) {
         List<SwiftCode> swiftCodes = new ArrayList<>();
         Map<String, SwiftCode> headquartersMap = new HashMap<>();
-        File file = new File(filePath);
 
-        if (!file.exists()) {
-            System.err.println("Plik nie istnieje!");
+        // Pobranie pliku z resources
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
+        if (inputStream == null) {
+            System.err.println("Plik '" + fileName + "' nie został znaleziony w resources!");
             return swiftCodes;
         }
 
-        if (file.length() == 0) {
-            System.err.println("Plik jest pusty!");
-            return swiftCodes;
-        }
-
-        try (FileInputStream inputStream = new FileInputStream(filePath);
-             Workbook workbook = new XSSFWorkbook(inputStream)) {
-             Sheet sheet = workbook.getSheetAt(0);
+        try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+            Sheet sheet = workbook.getSheetAt(0);
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue;
@@ -63,7 +59,6 @@ public class SwiftCodeParser {
                     continue;
                 }
 
-                // Can add getCell by Name of the cell
                 String countryISO2 = row.getCell(0).getStringCellValue().toUpperCase();
                 String bankName = row.getCell(3).getStringCellValue();
                 String address = row.getCell(4).getStringCellValue();
@@ -100,6 +95,7 @@ public class SwiftCodeParser {
         }
         return swiftCodes;
     }
+
 
     public void storeSwiftCodes(List<SwiftCode> swiftCodes) {
         Map<String, SwiftCode> headquartersMap = new HashMap<>();

@@ -134,7 +134,7 @@ class SwiftCodeParserUnitTest {
         List<SwiftCode> result = swiftCodeParser.parseSwiftCodes(filePath);
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        SwiftCode swiftCode = result.getFirst();
+        SwiftCode swiftCode = result.get(0);
         assertEquals("PL123412XXX", swiftCode.getCode());
         assertTrue(swiftCode.getHeadquarterFlag());
     }

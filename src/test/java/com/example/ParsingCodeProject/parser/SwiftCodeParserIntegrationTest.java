@@ -35,7 +35,7 @@ public class SwiftCodeParserIntegrationTest {
         assertNotNull(swiftCodes);
         assertFalse(swiftCodes.isEmpty());
         assertEquals(1, swiftCodes.size());
-        assertEquals("PL123412XXX", swiftCodes.getFirst().getCode());
+        assertEquals("PL123412XXX", swiftCodes.get(0).getCode());
     }
 
     @Test
@@ -80,6 +80,6 @@ public class SwiftCodeParserIntegrationTest {
         List<SwiftCode> savedCodes = swiftCodeRepository.findAll();
         assertFalse(savedCodes.isEmpty());
         assertEquals(1, savedCodes.size());
-        assertEquals("PL123412XXX", savedCodes.getFirst().getCode());
+        assertEquals("PL123412XXX", savedCodes.get(0).getCode());
     }
 }

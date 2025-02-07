@@ -22,9 +22,9 @@ public class ParsingCodeProjectApplication implements CommandLineRunner {
 	}
 
 	@Override
-	public void run(String... args){
-		String filePath = "src\\main\\resources\\Interns_2025_SWIFT_CODES.xlsx";
-		List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath);
+	public void run(String... args) {
+		String fileName = "Interns_2025_SWIFT_CODES.xlsx";
+		List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(fileName);
 
 		System.out.println("Przetworzone kody SWIFT:");
 		swiftCodes.forEach(swift ->
@@ -34,6 +34,4 @@ public class ParsingCodeProjectApplication implements CommandLineRunner {
 
 		swiftCodeParser.storeSwiftCodes(swiftCodes);
 	}
-
-
 }

@@ -43,7 +43,7 @@ public class SwiftCodeService {
 
         CountryResponse response = new CountryResponse(
                 countryISO2,
-                swiftCodes.getFirst().getCountryName(),
+                swiftCodes.stream().findFirst().orElse(null).getCountryName(),
                 swiftCodes.stream().map(CountryDTO::new).toList()
         );
 
