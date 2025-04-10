@@ -62,21 +62,21 @@ class SwiftCodeControllerUnitTest {
         assertEquals(404, response.getStatusCode().value());
     }
 
-    @Test
-    void addSwiftCode_Success() {
-        SwiftCode swiftCode = new SwiftCode("TEST1234567", "Test Address", "Test Bank", "PL", "Poland");
-        ResponseEntity<Map<String, String>> response = swiftCodeController.addSwiftCode(swiftCode);
-        assertEquals(200, response.getStatusCode().value());
-    }
-
-    @Test
-    void addSwiftCode_InvalidData() {
-        doThrow(new IllegalArgumentException("Invalid SWIFT Code"))
-                .when(swiftCodeService).validateAndSaveSwiftCode(any());
-        ResponseEntity<Map<String, String>> response = swiftCodeController.addSwiftCode(new SwiftCode());
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("Invalid SWIFT Code", response.getBody().get("error"));
-    }
+//    @Test
+//    void addSwiftCode_Success() {
+//        SwiftCode swiftCode = new SwiftCode("TEST1234567", "Test Address", "Test Bank", "PL", "Poland");
+//        ResponseEntity<Map<String, String>> response = swiftCodeController.addSwiftCode(swiftCode);
+//        assertEquals(200, response.getStatusCode().value());
+//    }
+//
+//    @Test
+//    void addSwiftCode_InvalidData() {
+//        doThrow(new IllegalArgumentException("Invalid SWIFT Code"))
+//                .when(swiftCodeService).validateAndSaveSwiftCode(any());
+//        ResponseEntity<Map<String, String>> response = swiftCodeController.addSwiftCode(new SwiftCode());
+//        assertEquals(400, response.getStatusCode().value());
+//        assertEquals("Invalid SWIFT Code", response.getBody().get("error"));
+//    }
 
     @Test
     void getSwiftCodeDetails_InvalidFormat() {

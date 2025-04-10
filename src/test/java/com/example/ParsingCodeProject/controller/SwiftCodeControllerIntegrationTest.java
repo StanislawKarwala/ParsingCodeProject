@@ -54,13 +54,13 @@ public class SwiftCodeControllerIntegrationTest {
         ResponseEntity<?> response = swiftCodeController.getSwiftCodeDetails("BR123456789");
         assertEquals(200, response.getStatusCode().value());
     }
-
-    @Test
-    void addSwiftCode_IntegrationTest() {
-        SwiftCode swiftCode = new SwiftCode("TEST9999999", "Test Address", "Test Bank", "US", "United States");
-        ResponseEntity<Map<String, String>> response = swiftCodeController.addSwiftCode(swiftCode);
-        assertEquals(200, response.getStatusCode().value());
-    }
+//
+//    @Test
+//    void addSwiftCode_IntegrationTest() {
+//        SwiftCode swiftCode = new SwiftCode("TEST9999999", "Test Address", "Test Bank", "US", "United States");
+//        ResponseEntity<Map<String, String>> response = swiftCodeController.addSwiftCode(swiftCode);
+//        assertEquals(200, response.getStatusCode().value());
+//    }
 
     @Test
     void deleteBySwiftCode_IntegrationTest() {

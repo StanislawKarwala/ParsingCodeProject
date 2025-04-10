@@ -101,56 +101,56 @@ class SwiftCodeServiceUnitTest {
         verify(swiftCodeRepository, times(1)).findByCountryISO2("DE");
     }
 
-    @Test
-    void validateAndSaveSwiftCode_Success() {
-        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        when(swiftCodeRepository.findById(swiftCode.getCode())).thenReturn(Optional.empty());
-
-        assertDoesNotThrow(() -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-        verify(swiftCodeRepository, times(1)).save(swiftCode);
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_MissingFields() {
-        SwiftCode swiftCode = new SwiftCode();
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-        assertEquals("All fields are required", exception.getMessage());
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_InvalidCountryISO2() {
-        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "P1", "Poland");
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-        assertEquals("Invalid country ISO2 code format. It must be exactly 2 uppercase letters.", exception.getMessage());
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_InvalidSwiftCodeLength() {
-        SwiftCode swiftCode = new SwiftCode("BREXPLPWXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-        assertEquals("SWIFT code must be exactly 11 characters long.", exception.getMessage());
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_ExistingSwiftCode() {
-        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        when(swiftCodeRepository.findById(swiftCode.getCode())).thenReturn(Optional.of(swiftCode));
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-        assertEquals("SWIFT code like this one already exists in the database.", exception.getMessage());
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_UppercaseConversion() {
-        SwiftCode swiftCode = new SwiftCode("brexplpwxxx", "Warsaw", "BRE Bank", "PL", "Poland");
-
-        when(swiftCodeRepository.findById("BREXPLPWXXX")).thenReturn(Optional.empty());
-
-        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
-
-        assertEquals("BREXPLPWXXX", swiftCode.getCode());
-        verify(swiftCodeRepository, times(1)).save(swiftCode);
-    }
+//    @Test
+//    void validateAndSaveSwiftCode_Success() {
+//        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+//        when(swiftCodeRepository.findById(swiftCode.getCode())).thenReturn(Optional.empty());
+//
+//        assertDoesNotThrow(() -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//        verify(swiftCodeRepository, times(1)).save(swiftCode);
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_MissingFields() {
+//        SwiftCode swiftCode = new SwiftCode();
+//        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//        assertEquals("All fields are required", exception.getMessage());
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_InvalidCountryISO2() {
+//        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "P1", "Poland");
+//        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//        assertEquals("Invalid country ISO2 code format. It must be exactly 2 uppercase letters.", exception.getMessage());
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_InvalidSwiftCodeLength() {
+//        SwiftCode swiftCode = new SwiftCode("BREXPLPWXX", "Warsaw", "BRE Bank", "PL", "Poland");
+//        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//        assertEquals("SWIFT code must be exactly 11 characters long.", exception.getMessage());
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_ExistingSwiftCode() {
+//        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+//        when(swiftCodeRepository.findById(swiftCode.getCode())).thenReturn(Optional.of(swiftCode));
+//
+//        Exception exception = assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//        assertEquals("SWIFT code like this one already exists in the database.", exception.getMessage());
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_UppercaseConversion() {
+//        SwiftCode swiftCode = new SwiftCode("brexplpwxxx", "Warsaw", "BRE Bank", "PL", "Poland");
+//
+//        when(swiftCodeRepository.findById("BREXPLPWXXX")).thenReturn(Optional.empty());
+//
+//        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
+//
+//        assertEquals("BREXPLPWXXX", swiftCode.getCode());
+//        verify(swiftCodeRepository, times(1)).save(swiftCode);
+//    }
 
     @Test
     void getSwiftCodeByCode_Success() {

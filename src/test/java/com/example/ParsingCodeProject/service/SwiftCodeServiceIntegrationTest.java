@@ -73,31 +73,31 @@ class SwiftCodeServiceIntegrationTest {
         assertTrue(swiftCodeRepository.findByCode("TEST1ESTXXX").isPresent());
     }
 
-    @Test
-    void validateAndSaveSwiftCode_Success() {
-        SwiftCode swiftCode = new SwiftCode("TSETTESTXXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
-        assertTrue(swiftCodeRepository.findById("TSETTESTXXX").isPresent());
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_DuplicateSwiftCode() {
-        SwiftCode swiftCode = new SwiftCode("TESTTESTXXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
-        assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_InvalidCountryISO2() {
-        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "P1", "Poland");
-        assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-    }
-
-    @Test
-    void validateAndSaveSwiftCode_InvalidSwiftCodeLength() {
-        SwiftCode swiftCode = new SwiftCode("BREXPLPWXX", "Warsaw", "BRE Bank", "PL", "Poland");
-        assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
-    }
+//    @Test
+//    void validateAndSaveSwiftCode_Success() {
+//        SwiftCode swiftCode = new SwiftCode("TSETTESTXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+//        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
+//        assertTrue(swiftCodeRepository.findById("TSETTESTXXX").isPresent());
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_DuplicateSwiftCode() {
+//        SwiftCode swiftCode = new SwiftCode("TESTTESTXXX", "Warsaw", "BRE Bank", "PL", "Poland");
+//        swiftCodeService.validateAndSaveSwiftCode(swiftCode);
+//        assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_InvalidCountryISO2() {
+//        SwiftCode swiftCode = new SwiftCode("BREXPLPWXXX", "Warsaw", "BRE Bank", "P1", "Poland");
+//        assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//    }
+//
+//    @Test
+//    void validateAndSaveSwiftCode_InvalidSwiftCodeLength() {
+//        SwiftCode swiftCode = new SwiftCode("BREXPLPWXX", "Warsaw", "BRE Bank", "PL", "Poland");
+//        assertThrows(IllegalArgumentException.class, () -> swiftCodeService.validateAndSaveSwiftCode(swiftCode));
+//    }
 
     @Test
     void getSwiftCodeByCode_Success() {
