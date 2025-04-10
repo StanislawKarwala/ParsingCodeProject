@@ -83,50 +83,6 @@ public class SwiftCodeService {
     }
 
 
-//    public void validateAndSaveSwiftCode(SwiftCode swiftCode) {
-//        private static final Map<String, String> COUNTRY_ISO2_MAP = new HashMap<>();
-//        static {
-//            COUNTRY_ISO2_MAP.put("POLAND", "PL");
-//            COUNTRY_ISO2_MAP.put("UNITED STATES", "US");
-//            COUNTRY_ISO2_MAP.put("GERMANY", "DE");
-//            COUNTRY_ISO2_MAP.put("FRANCE", "FR");
-//        }
-//
-//        if (swiftCode.getAddress() == null || swiftCode.getBankName() == null || swiftCode.getCountryISO2() == null ||
-//                swiftCode.getCountryName() == null || swiftCode.getCode() == null) {
-//            throw new IllegalArgumentException("All fields are required");
-//        }
-//
-//        if (!swiftCode.getCountryISO2().matches("[A-Z]{2}")) {
-//            throw new IllegalArgumentException("Invalid country ISO2 code format. It must be exactly 2 uppercase letters.");
-//        }
-//
-//        String uppercasedCode = swiftCode.getCode().toUpperCase();
-//        String uppercasedCountry = swiftCode.getCountryName().toUpperCase();
-//
-//        if (uppercasedCode.length() != 11) {
-//            throw new IllegalArgumentException("SWIFT code must be exactly 11 characters long.");
-//        }
-//
-//        String expectedISO2 = COUNTRY_ISO2_MAP.get(uppercasedCountry);
-//        if (expectedISO2 != null && !swiftCode.getCountryISO2().equals(expectedISO2)) {
-//            throw new IllegalArgumentException("Country ISO2 code '" + swiftCode.getCountryISO2() +
-//                    "' does not match country name '" + uppercasedCountry + "'. Expected: '" + expectedISO2 + "'");
-//        }
-//
-//        boolean isHeadquarter = uppercasedCode.endsWith("XXX");
-//
-//        Optional<SwiftCode> existingSwiftCode = swiftCodeRepository.findById(uppercasedCode);
-//        if (existingSwiftCode.isPresent()) {
-//            throw new IllegalArgumentException("SWIFT code like this one already exists in the database.");
-//        }
-//        swiftCode.setCountryName(uppercasedCountry);
-//        swiftCode.setCode(uppercasedCode);
-//        swiftCode.setHeadquarterFlag(isHeadquarter);
-//        swiftCodeRepository.save(swiftCode);
-//    }
-
-
     @Transactional
     public boolean deleteBySwiftCode(String code){
         SwiftCode swiftCode = swiftCodeRepository.findByCode(code).orElse(null);
