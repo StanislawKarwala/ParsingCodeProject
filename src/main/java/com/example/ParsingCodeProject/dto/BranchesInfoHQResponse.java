@@ -1,26 +1,25 @@
 package com.example.ParsingCodeProject.dto;
 
-import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.entity.Branch;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
-@JsonPropertyOrder({ "address", "bankName", "countryISO2", "isHeadquarter", "swiftCode" })
+@JsonPropertyOrder({"address", "bankName", "countryISO2", "isHeadquarter", "swiftCode"})
 @Getter
 public class BranchesInfoHQResponse {
-    // Endpoint 1 single branch connected to HQ
     private String address;
     private String bankName;
     private String countryISO2;
     private boolean isHeadquarter;
     private String swiftCode;
 
-    public BranchesInfoHQResponse(SwiftCode swiftCode){
-        this.address = swiftCode.getAddress();
-        this.bankName = swiftCode.getBankName();
-        this.countryISO2 = swiftCode.getCountryISO2();
-        this.isHeadquarter = swiftCode.getHeadquarterFlag();
-        this.swiftCode = swiftCode.getCode();
+    public BranchesInfoHQResponse(Branch branch) {
+        this.address = branch.getAddress();
+        this.bankName = branch.getBankName();
+        this.countryISO2 = branch.getCountryISO2();
+        this.isHeadquarter = branch.getHeadquarterFlag();
+        this.swiftCode = branch.getCode();
     }
 
     @JsonGetter("isHeadquarter")

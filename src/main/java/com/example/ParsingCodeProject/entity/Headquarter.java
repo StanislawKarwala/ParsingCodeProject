@@ -11,42 +11,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "swift_codes")
+@Table(name = "headquarters")
 @Data
 @NoArgsConstructor
-public class SwiftCode {
+public class Headquarter {
 
     @Id
     @JsonProperty("swiftCode")
+    @Column(length = 11)
     private String code;
 
+    @Column(length = 150)
     private String address;
 
-    @Column(name = "bank_name")
+    @Column(name = "bank_name", length = 100)
     private String bankName;
 
     @Column(name = "country_iso2", length = 2, nullable = false)
     private String countryISO2;
 
-    @Column(name = "country_name")
+    @Column(name = "country_name", length = 50)
     private String countryName;
 
-    @Column(name = "headquarter_flag", nullable = false)
+    @Column(name = "headquarter_flag", nullable = false, columnDefinition = "boolean default true")
     @JsonProperty("isHeadquarter")
     private boolean headquarterFlag;
-
-    @ManyToOne
-    @JoinColumn(name = "headquarter_code", referencedColumnName = "code")
-    @JsonIgnore
-    @ToString.Exclude
-    private SwiftCode headquarter;
 
     @OneToMany(mappedBy = "headquarter", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     @JsonIgnore
     @ToString.Exclude
-    private List<SwiftCode> branches = new ArrayList<>();
+    private List<Branch> branches = new ArrayList<>();
 
-    public SwiftCode(String code, String address, String bankName, String countryISO2, String countryName){
+    public Headquarter(String code, String address, String bankName, String countryISO2, String countryName) {
         this.code = code;
         this.address = address;
         this.bankName = bankName;
@@ -58,5 +54,4 @@ public class SwiftCode {
     public boolean getHeadquarterFlag() {
         return headquarterFlag;
     }
-
 }

@@ -1,7 +1,10 @@
 package com.example.ParsingCodeProject;
 
-import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.entity.Branch;
+import com.example.ParsingCodeProject.entity.Headquarter;
 import com.example.ParsingCodeProject.parser.SwiftCodeParser;
+import com.example.ParsingCodeProject.repository.BranchRepository;
+import com.example.ParsingCodeProject.repository.HeadquarterRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,9 +17,15 @@ import java.util.List;
 public class ParsingCodeProjectApplication implements CommandLineRunner {
 
 	private final SwiftCodeParser swiftCodeParser;
+	private final HeadquarterRepository headquarterRepository;
+	private final BranchRepository branchRepository;
 
-	public ParsingCodeProjectApplication(SwiftCodeParser swiftCodeParser){
+	public ParsingCodeProjectApplication(SwiftCodeParser swiftCodeParser,
+										 HeadquarterRepository headquarterRepository,
+										 BranchRepository branchRepository) {
 		this.swiftCodeParser = swiftCodeParser;
+		this.headquarterRepository = headquarterRepository;
+		this.branchRepository = branchRepository;
 	}
 
 	public static void main(String[] args) {
@@ -27,14 +36,8 @@ public class ParsingCodeProjectApplication implements CommandLineRunner {
 	public void run(String... args) {
 		String fileName = "Interns_2025_SWIFT_CODES.xlsx";
 		Path filePath = Paths.get("src", "main", "resources", fileName);
-		List<SwiftCode> swiftCodes = swiftCodeParser.parseSwiftCodes(filePath.toString());
 
-		System.out.println("Przetworzone kody SWIFT:");
-		swiftCodes.forEach(swift ->
-				System.out.println("SwiftCode: " + swift.getCode() + " ||| Nazwa banku: " + swift.getBankName()
-						+ " ||| Główny oddział?: " + swift.getHeadquarterFlag() + " ||| Kraj: " + swift.getCountryName())
-		);
-
-		swiftCodeParser.storeSwiftCodes(swiftCodes);
+		// Parsowanie i zapis danych
+		swiftCodeParser.parseAndStoreSwiftCodes(filePath.toString());
 	}
 }

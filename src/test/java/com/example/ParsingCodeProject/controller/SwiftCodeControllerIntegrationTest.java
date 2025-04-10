@@ -1,8 +1,7 @@
 package com.example.ParsingCodeProject.controller;
 
-import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.parser.SwiftCodeParser;
-import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
+
 import com.example.ParsingCodeProject.service.SwiftCodeService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterAll;

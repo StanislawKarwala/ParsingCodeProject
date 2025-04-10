@@ -1,6 +1,7 @@
 package com.example.ParsingCodeProject.parser;
 
-import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.entity.Branch;
+import com.example.ParsingCodeProject.entity.Headquarter;
 import com.example.ParsingCodeProject.service.SwiftCodeService;
 import org.apache.poi.EmptyFileException;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
@@ -25,26 +26,27 @@ public class SwiftCodeParser {
 
     private final SwiftCodeService swiftCodeService;
 
-    public SwiftCodeParser(SwiftCodeService swiftCodeService){
+    public SwiftCodeParser(SwiftCodeService swiftCodeService) {
         this.swiftCodeService = swiftCodeService;
     }
 
-    public List<SwiftCode> parseSwiftCodes(String fileName) {
-        List<SwiftCode> swiftCodes = new ArrayList<>();
-        Map<String, SwiftCode> headquartersMap = new HashMap<>();
+    public void parseAndStoreSwiftCodes(String fileName) {
+        List<Headquarter> headquarters = new ArrayList<>();
+        List<Branch> branches = new ArrayList<>();
+        Map<String, Headquarter> headquartersMap = new HashMap<>();
 
         Path filePath = Paths.get(fileName);
 
         if (!Files.exists(filePath)) {
             System.err.println("Plik '" + filePath.toAbsolutePath() + "' nie istnieje!");
-            return swiftCodes;
+            return;
         }
 
         try {
             long fileSize = Files.size(filePath);
             if (fileSize == 0) {
                 System.err.println("Błąd: Plik '" + filePath.toAbsolutePath() + "' jest pusty!");
-                return swiftCodes;
+                return;
             }
 
             try (InputStream inputStream = Files.newInputStream(filePath);
@@ -52,17 +54,13 @@ public class SwiftCodeParser {
                 Sheet sheet = workbook.getSheetAt(0);
 
                 for (Row row : sheet) {
-                    if (row.getRowNum() == 0) continue;
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
 
                     String code = row.getCell(1).getStringCellValue();
 
                     if (code.length() != 11) {
-                        System.err.println("Kod SWIFT '" + code + "' ma nieprawidłową długość. Oczekiwano 11 znaków, ale otrzymano " + code.length());
-                        continue;
-                    }
-
-                    boolean isDuplicate = swiftCodes.stream().anyMatch(swift -> swift.getCode().equals(code));
-                    if (isDuplicate) {
                         continue;
                     }
 
@@ -72,23 +70,28 @@ public class SwiftCodeParser {
                     String countryName = row.getCell(6).getStringCellValue().toUpperCase();
                     boolean isHeadquarter = code.endsWith("XXX");
 
-                    SwiftCode swift = new SwiftCode(code, address, bankName, countryISO2, countryName);
-                    swiftCodes.add(swift);
-
                     if (isHeadquarter) {
-                        headquartersMap.put(code.substring(0, 8), swift);
-                    }
-                }
-                for (SwiftCode swift : swiftCodes) {
-                    if (!swift.getCode().endsWith("XXX")) {
-                        String baseCode = swift.getCode().substring(0, 8);
-                        SwiftCode headquarter = headquartersMap.get(baseCode);
-                        if (headquarter != null) {
-                            swift.setHeadquarter(headquarter);
-                            headquarter.getBranches().add(swift);
+                        Headquarter hq = new Headquarter(code, address, bankName, countryISO2, countryName);
+                        if (!headquarters.contains(hq)) {
+                            headquarters.add(hq);
+                            headquartersMap.put(code.substring(0, 8), hq);
+                        }
+                    } else {
+                        Branch branch = new Branch(code, address, bankName, countryISO2, countryName);
+                        if (!branches.contains(branch)) {
+                            branches.add(branch);
                         }
                     }
                 }
+                for (Branch branch : branches) {
+                    String baseCode = branch.getCode().substring(0, 8);
+                    Headquarter headquarter = headquartersMap.get(baseCode);
+                    if (headquarter != null) {
+                        branch.setHeadquarter(headquarter);
+                        headquarter.getBranches().add(branch);
+                    }
+                }
+                storeSwiftCodes(headquarters, branches);
             }
         } catch (EmptyFileException e) {
             System.err.println("Błąd: Plik '" + filePath.toAbsolutePath() + "' jest pusty!");
@@ -97,17 +100,14 @@ public class SwiftCodeParser {
         } catch (IOException e) {
             System.err.println("Błąd podczas odczytu pliku: " + e.getMessage());
         }
-        return swiftCodes;
     }
 
-    public void storeSwiftCodes(List<SwiftCode> swiftCodes) {
-        List<SwiftCode> mutableSwiftCodes = new ArrayList<>(swiftCodes);
-
-        mutableSwiftCodes.sort((a, b) -> Boolean.compare(b.getHeadquarterFlag(), a.getHeadquarterFlag()));
-
-        for(SwiftCode swift : mutableSwiftCodes){
-            swiftCodeService.saveSwiftCodesData(swift);
+    private void storeSwiftCodes(List<Headquarter> headquarters, List<Branch> branches) {
+        for (Headquarter hq : headquarters) {
+            swiftCodeService.saveHeadquarter(hq);
+        }
+        for (Branch branch : branches) {
+            swiftCodeService.saveBranch(branch);
         }
     }
 }
-

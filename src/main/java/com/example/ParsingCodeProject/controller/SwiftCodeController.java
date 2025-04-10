@@ -1,11 +1,12 @@
 package com.example.ParsingCodeProject.controller;
 
-import com.example.ParsingCodeProject.dto.BranchesDTO;
+
 import com.example.ParsingCodeProject.dto.BranchesInfoHQResponse;
 import com.example.ParsingCodeProject.dto.CountryResponse;
 import com.example.ParsingCodeProject.dto.HeadquarterDTO;
-import com.example.ParsingCodeProject.entity.SwiftCode;
+import com.example.ParsingCodeProject.dto.SwiftCodeRequestDTO;
 import com.example.ParsingCodeProject.service.SwiftCodeService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,34 +22,24 @@ public class SwiftCodeController {
 
     private final SwiftCodeService swiftCodeService;
 
-    public SwiftCodeController(SwiftCodeService swiftCodeService){
+    public SwiftCodeController(SwiftCodeService swiftCodeService) {
         this.swiftCodeService = swiftCodeService;
     }
-
 
     @GetMapping("/{swift-code}")
     public ResponseEntity<?> getSwiftCodeDetails(@PathVariable("swift-code") String swiftCode) {
         if (!swiftCode.matches("[A-Z0-9]{11}")) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Invalid SWIFT code format. It must be exactly 11 alphanumeric characters."));
         }
 
-        Optional<SwiftCode> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
+        Optional<Object> swiftCodeOpt = swiftCodeService.getSwiftCodeByCode(swiftCode);
         if (swiftCodeOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "SWIFT code not found in database."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "SWIFT code not found in database."));
         }
 
-        SwiftCode code = swiftCodeOpt.get();
-        if (!code.getHeadquarterFlag()) {
-            return ResponseEntity.ok(new BranchesDTO(code));
-        }
-
-        List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode).stream()
-                .map(BranchesInfoHQResponse::new)
-                .toList();
-
-        return ResponseEntity.ok(new HeadquarterDTO(
-                code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
-        ));
+        return ResponseEntity.ok(swiftCodeOpt.get());
     }
 
 
@@ -66,35 +57,28 @@ public class SwiftCodeController {
                     .body(Map.of("error", "No SWIFT codes found for country: " + countryISO2code));
         }
 
-        return response.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(response.get());
     }
 
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> addSwiftCode(@RequestBody SwiftCode swiftCode) {
+    public ResponseEntity<Map<String, String>> addSwiftCode(@Valid @RequestBody SwiftCodeRequestDTO swiftCodeDTO) {
         try {
-            swiftCodeService.validateAndSaveSwiftCode(swiftCode);
-            Map<String, String> response = new HashMap<>();
-
-            response.put("message", "SWIFT code successfully added");
-            return ResponseEntity.ok(response);
+            swiftCodeService.validateAndSaveSwiftCode(swiftCodeDTO);
+            return ResponseEntity.ok(Map.of("message", "SWIFT code successfully added"));
         } catch (IllegalArgumentException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
 
     @DeleteMapping("/{swift-code}")
-    public ResponseEntity<Map<String, String>> deleteBySwiftCode(@PathVariable("swift-code") String code){
+    public ResponseEntity<Map<String, String>> deleteBySwiftCode(@PathVariable("swift-code") String code) {
         boolean isDeleted = swiftCodeService.deleteBySwiftCode(code);
 
         Map<String, String> response = new HashMap<>();
-        if(isDeleted){
-            response.put("message", "SWIFT code data succesfully deleted");
+        if (isDeleted) {
+            response.put("message", "SWIFT code data successfully deleted");
             return ResponseEntity.ok(response);
         } else {
             response.put("message", "SWIFT code data not found");
