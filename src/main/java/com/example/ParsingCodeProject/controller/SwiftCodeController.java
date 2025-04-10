@@ -26,6 +26,7 @@ public class SwiftCodeController {
         this.swiftCodeService = swiftCodeService;
     }
 
+
     @GetMapping("/{swift-code}")
     public ResponseEntity<?> getSwiftCodeDetails(@PathVariable("swift-code") String swiftCode) {
         if (!swiftCode.matches("[A-Z0-9]{11}")) {

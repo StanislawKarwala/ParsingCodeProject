@@ -37,7 +37,6 @@ public class ParsingCodeProjectApplication implements CommandLineRunner {
 		String fileName = "Interns_2025_SWIFT_CODES.xlsx";
 		Path filePath = Paths.get("src", "main", "resources", fileName);
 
-		// Parsowanie i zapis danych
 		swiftCodeParser.parseAndStoreSwiftCodes(filePath.toString());
 	}
 }
