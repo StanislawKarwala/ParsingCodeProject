@@ -75,14 +75,10 @@ public class SwiftCodeController {
     @DeleteMapping("/{swift-code}")
     public ResponseEntity<Map<String, String>> deleteBySwiftCode(@PathVariable("swift-code") String code) {
         boolean isDeleted = swiftCodeService.deleteBySwiftCode(code);
-
-        Map<String, String> response = new HashMap<>();
         if (isDeleted) {
-            response.put("message", "SWIFT code data successfully deleted");
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("message", "SWIFT code data not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.ok(Map.of("message", "SWIFT code data successfully deleted"));
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", "SWIFT code data not found"));
     }
 }
