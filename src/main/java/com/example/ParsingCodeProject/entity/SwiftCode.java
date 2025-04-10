@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -43,7 +44,7 @@ public class SwiftCode {
     @OneToMany(mappedBy = "headquarter", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     @JsonIgnore
     @ToString.Exclude
-    private List<SwiftCode> branches;
+    private List<SwiftCode> branches = new ArrayList<>();
 
     public SwiftCode(String code, String address, String bankName, String countryISO2, String countryName){
         this.code = code;
@@ -55,7 +56,7 @@ public class SwiftCode {
     }
 
     public boolean getHeadquarterFlag() {
-        return code.endsWith("XXX");
+        return headquarterFlag;
     }
 
 }

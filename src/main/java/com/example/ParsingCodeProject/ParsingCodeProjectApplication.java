@@ -2,7 +2,6 @@ package com.example.ParsingCodeProject;
 
 import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.parser.SwiftCodeParser;
-import com.example.ParsingCodeProject.repository.SwiftCodeRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

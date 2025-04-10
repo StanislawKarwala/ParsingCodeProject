@@ -8,6 +8,7 @@ import lombok.Getter;
 @JsonPropertyOrder({ "address", "bankName", "countryISO2", "isHeadquarter", "swiftCode" })
 @Getter
 public class BranchesInfoHQResponse {
+    // Endpoint 1 single branch connected to HQ
     private String address;
     private String bankName;
     private String countryISO2;

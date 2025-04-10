@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class HeadquarterDTO {
+    // Endpoint 1 for headquarter info + connected branches
     private String address;
     private String bankName;
     private String countryISO2;

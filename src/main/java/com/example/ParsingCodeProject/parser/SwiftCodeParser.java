@@ -4,15 +4,12 @@ import com.example.ParsingCodeProject.entity.SwiftCode;
 import com.example.ParsingCodeProject.service.SwiftCodeService;
 import org.apache.poi.EmptyFileException;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
-import org.springframework.stereotype.Component;
-
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -37,7 +34,6 @@ public class SwiftCodeParser {
         Map<String, SwiftCode> headquartersMap = new HashMap<>();
 
         Path filePath = Paths.get(fileName);
-        System.out.println("FILEPATH: " + filePath);
 
         if (!Files.exists(filePath)) {
             System.err.println("Plik '" + filePath.toAbsolutePath() + "' nie istnieje!");
@@ -59,7 +55,6 @@ public class SwiftCodeParser {
                     if (row.getRowNum() == 0) continue;
 
                     String code = row.getCell(1).getStringCellValue();
-                    System.out.println("Przetwarzanie kodu SWIFT: " + code);
 
                     if (code.length() != 11) {
                         System.err.println("Kod SWIFT '" + code + "' ma nieprawidłową długość. Oczekiwano 11 znaków, ale otrzymano " + code.length());
@@ -68,7 +63,6 @@ public class SwiftCodeParser {
 
                     boolean isDuplicate = swiftCodes.stream().anyMatch(swift -> swift.getCode().equals(code));
                     if (isDuplicate) {
-                        System.out.println("Duplikat kodu SWIFT: " + code);
                         continue;
                     }
 
@@ -78,26 +72,20 @@ public class SwiftCodeParser {
                     String countryName = row.getCell(6).getStringCellValue().toUpperCase();
                     boolean isHeadquarter = code.endsWith("XXX");
 
-                    System.out.println("Tworzenie obiektu SwiftCode dla kodu: " + code);
                     SwiftCode swift = new SwiftCode(code, address, bankName, countryISO2, countryName);
-                    swift.setHeadquarterFlag(isHeadquarter);
                     swiftCodes.add(swift);
 
                     if (isHeadquarter) {
                         headquartersMap.put(code.substring(0, 8), swift);
-                        System.out.println("Dodano centralę banku: " + code);
                     }
                 }
-
-                System.out.println("Rozpoczynam przypisywanie oddziałów do central...");
                 for (SwiftCode swift : swiftCodes) {
                     if (!swift.getCode().endsWith("XXX")) {
-                        String headquarterCode = swift.getCode().substring(0, 8) + "XXX";
-                        SwiftCode headquarter = headquartersMap.get(headquarterCode);
+                        String baseCode = swift.getCode().substring(0, 8);
+                        SwiftCode headquarter = headquartersMap.get(baseCode);
                         if (headquarter != null) {
                             swift.setHeadquarter(headquarter);
                             headquarter.getBranches().add(swift);
-                            System.out.println("Przypisano oddział " + swift.getCode() + " do centrali " + headquarterCode);
                         }
                     }
                 }
@@ -113,31 +101,13 @@ public class SwiftCodeParser {
     }
 
     public void storeSwiftCodes(List<SwiftCode> swiftCodes) {
-        Map<String, SwiftCode> headquartersMap = new HashMap<>();
         List<SwiftCode> mutableSwiftCodes = new ArrayList<>(swiftCodes);
 
         mutableSwiftCodes.sort((a, b) -> Boolean.compare(b.getHeadquarterFlag(), a.getHeadquarterFlag()));
 
-        for (SwiftCode swift : mutableSwiftCodes) {
-            if (swift.getHeadquarterFlag()) {
-                swiftCodeService.saveSwiftCodesData(swift);
-                headquartersMap.put(swift.getCode().substring(0, 8), swift);
-                System.out.println("Zapisano centralę: " + swift.getCode());
-            }
+        for(SwiftCode swift : mutableSwiftCodes){
+            swiftCodeService.saveSwiftCodesData(swift);
         }
-
-        for (SwiftCode swift : mutableSwiftCodes) {
-            if (!swift.getHeadquarterFlag()) {
-                SwiftCode headquarter = headquartersMap.get(swift.getCode().substring(0, 8));
-                if (headquarter != null) {
-                    swift.setHeadquarter(headquarter);
-                }
-                swiftCodeService.saveSwiftCodesData(swift);
-                System.out.println("Zapisano oddział: " + swift.getCode());
-            }
-        }
-
-        System.out.println("Zakończono zapisywanie do bazy danych.");
     }
 }
 

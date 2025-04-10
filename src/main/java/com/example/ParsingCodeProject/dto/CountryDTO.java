@@ -8,6 +8,7 @@ import lombok.Getter;
 @JsonPropertyOrder({ "address", "bankName", "countryISO2", "isHeadquarter", "swiftCode" })
 @Getter
 public class CountryDTO {
+    // Endpoint 2 for single swift code in country
     private String address;
     private String bankName;
     private String countryISO2;

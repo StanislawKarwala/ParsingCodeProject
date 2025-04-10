@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/swift-codes")
@@ -22,6 +24,7 @@ public class SwiftCodeController {
     public SwiftCodeController(SwiftCodeService swiftCodeService){
         this.swiftCodeService = swiftCodeService;
     }
+
 
     @GetMapping("/{swift-code}")
     public ResponseEntity<?> getSwiftCodeDetails(@PathVariable("swift-code") String swiftCode) {
@@ -35,25 +38,23 @@ public class SwiftCodeController {
         }
 
         SwiftCode code = swiftCodeOpt.get();
-        if (code.getHeadquarterFlag()) {
-            try {
-                List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode)
-                        .stream()
-                        .map(BranchesInfoHQResponse::new)
-                        .collect(Collectors.toList());
-                return ResponseEntity.ok(new HeadquarterDTO(
-                        code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
-                ));
-            } catch (NoSuchElementException e) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-            }
+        if (!code.getHeadquarterFlag()) {
+            return ResponseEntity.ok(new BranchesDTO(code));
         }
-        return ResponseEntity.ok(new BranchesDTO(code));
+
+        List<BranchesInfoHQResponse> branches = swiftCodeService.getBranchesByHeadquarter(swiftCode).stream()
+                .map(BranchesInfoHQResponse::new)
+                .toList();
+
+        return ResponseEntity.ok(new HeadquarterDTO(
+                code.getAddress(), code.getBankName(), code.getCountryISO2(), code.getCountryName(), true, code.getCode(), branches
+        ));
     }
+
 
     @GetMapping("/country/{countryISO2code}")
     public ResponseEntity<?> getSwiftCodesByCountry(@PathVariable String countryISO2code) {
-        if (countryISO2code.length() != 2 || !countryISO2code.matches("[A-Z]{2}")) {
+        if (!countryISO2code.matches("[A-Z]{2}")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Invalid country ISO2 code format. It must be exactly 2 uppercase letters."));
         }
@@ -69,19 +70,23 @@ public class SwiftCodeController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     @PostMapping
     public ResponseEntity<Map<String, String>> addSwiftCode(@RequestBody SwiftCode swiftCode) {
         try {
             swiftCodeService.validateAndSaveSwiftCode(swiftCode);
             Map<String, String> response = new HashMap<>();
+
             response.put("message", "SWIFT code successfully added");
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> errorResponse = new HashMap<>();
+
             errorResponse.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
         }
     }
+
 
     @DeleteMapping("/{swift-code}")
     public ResponseEntity<Map<String, String>> deleteBySwiftCode(@PathVariable("swift-code") String code){
